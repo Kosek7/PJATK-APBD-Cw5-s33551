@@ -101,6 +101,11 @@ public class RoomsController : ControllerBase
             return NotFound($"Pokój o id: {id} nie istnieje");
         }
         
+        var hasReservations = ReservationsController._reservations.Any(r => r.RoomId == id);
+
+        if (hasReservations)
+            return Conflict("Nie można usunąć pokoju z istniejącymi rezerwacjami");
+            
         _rooms.Remove(room);
         return NoContent();
     }
