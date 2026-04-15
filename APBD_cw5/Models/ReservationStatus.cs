@@ -2,7 +2,7 @@
 
 public enum ReservationStatus
 {
-    Planned,
-    Confirmed,
-    Cancelled
+    planned,
+    confirmed,
+    cancelled
 }

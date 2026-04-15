@@ -7,7 +7,7 @@ namespace APBD_cw5.Controllers;
 [Route("api/[controller]")]
 public class RoomsController : ControllerBase
 {
-    private static List<Room> _rooms = new()
+    public static List<Room> _rooms = new()
     {
         new Room { Id = 1, Name = "A101", BuildingCode = "A", Floor = 1, Capacity = 20, HasProjector = true, IsActive = true },
         new Room { Id = 2, Name = "A102", BuildingCode = "A", Floor = 1, Capacity = 15, HasProjector = false, IsActive = true },
@@ -70,7 +70,7 @@ public class RoomsController : ControllerBase
         room.Id = _rooms.Max(r => r.Id) + 1;
         _rooms.Add(room);
         
-        return CreatedAtAction(nameof(Get), new { id = room.Id }, room);
+        return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
     }
 
     [HttpPut("{id:int}")]
