@@ -15,11 +15,24 @@ public class RoomsController : ControllerBase
         new Room { Id = 4, Name = "C301", BuildingCode = "C", Floor = 3, Capacity = 10, HasProjector = false, IsActive = false },
         new Room { Id = 5, Name = "D401", BuildingCode = "D", Floor = 4, Capacity = 50, HasProjector = true, IsActive = true }
     };
-
+    
     [HttpGet]
-    public IActionResult GetAll()
+    public IActionResult Get(
+        [FromQuery] int? minCapacity, bool? hasProjector, bool? activeOnly)
     {
-        return Ok(_rooms);
+        var rooms = _rooms;
+        
+        if (minCapacity.HasValue)
+            rooms = rooms.Where(r => r.Capacity >= minCapacity.Value).ToList();
+        if (hasProjector.HasValue)
+            rooms = rooms.Where(r => r.HasProjector == hasProjector.Value).ToList();
+        if (activeOnly == true)
+            rooms = rooms.Where(r => r.IsActive).ToList();
+        
+        if (rooms.Any())
+            return Ok(rooms);
+        
+        return NotFound("Brak pokojów o podanych filtrach.");
     }
 
     [HttpGet("{id:int}")]
@@ -48,24 +61,47 @@ public class RoomsController : ControllerBase
         return Ok(rooms);
     }
 
-    [HttpGet]
-    public IActionResult Get(
-        [FromQuery] int? minCapacity,
-        [FromQuery] bool? hasProjector,
-        [FromQuery] bool? activeOnly)
+    [HttpPost]
+    public IActionResult Post([FromBody] Room room)
     {
-        var rooms = _rooms;
+        if(!ModelState.IsValid)
+            return BadRequest(ModelState);
         
-        if (minCapacity.HasValue)
-            rooms = rooms.Where(r => r.Capacity >= minCapacity.Value).ToList();
-        if (hasProjector.HasValue)
-            rooms = rooms.Where(r => r.HasProjector == hasProjector.Value).ToList();
-        if (activeOnly == true)
-            rooms = rooms.Where(r => r.IsActive).ToList();
+        room.Id = _rooms.Max(r => r.Id) + 1;
+        _rooms.Add(room);
         
-        if (rooms.Any())
-            return Ok(rooms);
+        return CreatedAtAction(nameof(Get), new { id = room.Id }, room);
+    }
+
+    [HttpPut("{id:int}")]
+    public IActionResult Put(int id, [FromBody] Room updatedRoom)
+    {
+        var room = _rooms.FirstOrDefault(r => r.Id == id);
+        if (room is null)
+        {
+            return NotFound($"Pokój o id: {id} nie istnieje");
+        }
         
-        return NotFound("Brak pokojów o podanych filtrach.");
+        room.Name = updatedRoom.Name;
+        room.BuildingCode = updatedRoom.BuildingCode;
+        room.Floor = updatedRoom.Floor;
+        room.Capacity = updatedRoom.Capacity;
+        room.HasProjector = updatedRoom.HasProjector;
+        room.IsActive = updatedRoom.IsActive;
+
+        return Ok(room);
+    }
+
+    [HttpDelete("{id:int}")]
+    public IActionResult Delete(int id)
+    {
+        var room = _rooms.FirstOrDefault(r => r.Id == id);
+        if (room is null)
+        {
+            return NotFound($"Pokój o id: {id} nie istnieje");
+        }
+        
+        _rooms.Remove(room);
+        return NoContent();
     }
 }
