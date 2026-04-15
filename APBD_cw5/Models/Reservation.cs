@@ -1,10 +1,16 @@
-﻿namespace APBD_cw5.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace APBD_cw5.Models;
 
 public class Reservation
 {
     public int Id { get; set; }
     public int RoomId { get; set; }
+    
+    [Required]
     public string OrganizerName { get; set; }
+    
+    [Required]
     public string Topic { get; set; }
     public DateTime Date { get; set; }
     public TimeSpan StartTime { get; set; }
