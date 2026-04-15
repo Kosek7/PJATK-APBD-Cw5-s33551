@@ -65,7 +65,7 @@ public class RoomsController : ControllerBase
         
         if (rooms.Any())
             return Ok(rooms);
-        else
-            return NotFound("Brak pokojów o podanych filtrach.");
+        
+        return NotFound("Brak pokojów o podanych filtrach.");
     }
 }

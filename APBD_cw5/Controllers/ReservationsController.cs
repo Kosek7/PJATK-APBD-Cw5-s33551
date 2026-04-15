@@ -65,4 +65,23 @@ public class ReservationsController : ControllerBase
             Status = ReservationStatus.Confirmed
         }
     };
+
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        return Ok(_reservations);
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult GetById(int id)
+    {
+        var reservation = _reservations.FirstOrDefault(r => r.Id == id);
+        
+        if (reservation is null)
+        {
+            return NotFound($"Pokój o id: {id} nie istnieje");
+        }
+        
+        return Ok(reservation);
+    }
 }
