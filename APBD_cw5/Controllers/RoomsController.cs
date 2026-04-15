@@ -15,4 +15,57 @@ public class RoomsController : ControllerBase
         new Room { Id = 4, Name = "C301", BuildingCode = "C", Floor = 3, Capacity = 10, HasProjector = false, IsActive = false },
         new Room { Id = 5, Name = "D401", BuildingCode = "D", Floor = 4, Capacity = 50, HasProjector = true, IsActive = true }
     };
+
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        return Ok(_rooms);
+    }
+
+    [HttpGet("{id:int}")]
+    public IActionResult GetById(int id)
+    {
+        var room = _rooms.FirstOrDefault(r => r.Id == id);
+
+        if (room is null)
+        {
+            return NotFound($"Pokój o id: {id} nie istnieje");
+        }
+        
+        return Ok(room);
+    }
+
+    [HttpGet("/building/{buildingCode}")]
+    public IActionResult GetByBuildingCode(string buildingCode)
+    {
+        var rooms = _rooms.Where(r => r.BuildingCode == buildingCode).ToList();
+        
+        if (!rooms.Any())
+        {
+            return NotFound($"Żaden pokój w budynku o kodzie: {buildingCode} nie istnieje");
+        }
+        
+        return Ok(rooms);
+    }
+
+    [HttpGet]
+    public IActionResult Get(
+        [FromQuery] int? minCapacity,
+        [FromQuery] bool? hasProjector,
+        [FromQuery] bool? activeOnly)
+    {
+        var rooms = _rooms;
+        
+        if (minCapacity.HasValue)
+            rooms = rooms.Where(r => r.Capacity >= minCapacity.Value).ToList();
+        if (hasProjector.HasValue)
+            rooms = rooms.Where(r => r.HasProjector == hasProjector.Value).ToList();
+        if (activeOnly == true)
+            rooms = rooms.Where(r => r.IsActive).ToList();
+        
+        if (rooms.Any())
+            return Ok(rooms);
+        else
+            return NotFound("Brak pokojów o podanych filtrach.");
+    }
 }
